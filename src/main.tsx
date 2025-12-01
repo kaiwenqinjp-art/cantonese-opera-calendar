@@ -1,18 +1,23 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { Calendar, ConfigProvider, Flex, Tag } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import dayjs from 'dayjs';
+import './style.css';
+
 const defaultDate = new Date(2025, 2, 1);
-let filter = (data) => data;
+let filter = (data: any[]) => data;
 
-filter = (data) => data.filter((item) => ['广州团'].includes(item.troupe));
+// filter = (data) => data.filter((item) => ['广州团'].includes(item.troupe));
 
-const { createRoot } = ReactDOM;
-const { Avatar, Badge, Calendar, ConfigProvider, Flex, Tag, locales } = antd;
-
-const getMonthData = (value) => {
+const getMonthData = (value: dayjs.Dayjs) => {
   if (value.month() === 8) {
     return 1394;
   }
 };
+
 const App = () => {
-  const monthCellRender = (value) => {
+  const monthCellRender = (value: dayjs.Dayjs) => {
     const num = getMonthData(value);
     return num ? (
       <div className="notes-month">
@@ -22,58 +27,8 @@ const App = () => {
     ) : null;
   };
 
-  const colorRender = (type) => {
-    const map = {
-      morning: 'green',
-      afternoon: 'red',
-      night: 'blue',
-      unknown: 'orange',
-    };
-    return map[type] || '';
-  };
-
-  const iconRender = (type) => {
-    const shape = 'circle';
-    const size = 26;
-    const gap = 6;
-    const map = {
-      morning: (
-        <Avatar
-          shape={shape}
-          gap={gap}
-          size={size}
-          style={{ backgroundColor: 'green', color: '#fff' }}
-        >
-          早
-        </Avatar>
-      ),
-      afternoon: (
-        <Avatar
-          shape={shape}
-          gap={gap}
-          size={size}
-          style={{ backgroundColor: 'red', color: '#fff' }}
-        >
-          午
-        </Avatar>
-      ),
-      night: (
-        <Avatar
-          shape={shape}
-          gap={gap}
-          size={size}
-          style={{ backgroundColor: '#1677ff', color: '#fff' }}
-        >
-          晚
-        </Avatar>
-      ),
-    };
-    // return map[type] || "";
-    return '';
-  };
-
-  const cityRender = (city) => {
-    const map = {
+  const cityRender = (city: string) => {
+    const map: Record<string, string> = {
       广州: 'red',
       佛山: 'orange',
       深圳: 'magenta',
@@ -84,23 +39,12 @@ const App = () => {
       北海: 'cyan',
     };
 
-    const shape = 'square';
-    const size = 36;
-    const gap = 6;
-    const textFontSize = 36;
     const color = map[city] || '';
-
     return <Tag color={color}> {city || ''}</Tag>;
-
-    // return <span className="item-city">{city || ""}</span>;
   };
 
-  const troupeRender = (troupe) => {
-    const shape = 'square';
-    const size = 36;
-    const gap = 1;
-    const textFontSize = 36;
-    const map = {
+  const troupeRender = (troupe: string) => {
+    const map: Record<string, { color: string; name: string }> = {
       广州团: { color: '#2f54eb', name: '广州团' },
       佛山团: { color: '#f5222d', name: '佛山团' },
       红豆团: { color: '#ff4d4f', name: '红豆团' },
@@ -113,78 +57,47 @@ const App = () => {
     return <Tag color={color}> {name || ''}</Tag>;
   };
 
-  const locationRender = (location) => {
-    // const shape = "square";
-    // const size = 26;
-    // const gap = 2;
-    // const textFontSize = 30;
-    // return (
-    //   <Avatar
-    //     shape={shape}
-    //     gap={gap}
-    //     size={size}
-    //     textFontSize={textFontSize}
-    //     style={{ backgroundColor: "#e6f4ff", color: "#000" }}
-    //   >
-    //     {location || ""}
-    //   </Avatar>
-    //);
-
-    // return <span className="item-location">{location || ""}</span>;
+  const locationRender = (location: string) => {
     return <Tag color="blue"> {location || ''}</Tag>;
   };
 
-  const dateCellRender = (value) => {
+  const dateCellRender = (value: dayjs.Dayjs) => {
     const listData = getListData(value);
     return (
-      <ConfigProvider
-        theme={{
-          components: {
-            Badge: {
-              // dotSize: 20,
-              // statusSize: 18,
-            },
-          },
-        }}
-      >
-        <ul className="events">
-          {listData.map((item, index) => (
-            <li key={index} className="item-troupe">
-              <Flex gap="4px 0" wrap>
-                {troupeRender(item.troupe)}
-                {cityRender(item.city)}
-                {locationRender(item.location)}
-              </Flex>
-              <span className="item-content item-play-name">
-                {item.content}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </ConfigProvider>
+      <ul className="events">
+        {listData.map((item, index) => (
+          <li key={index} className="item-troupe">
+            <Flex gap="4px 0" wrap>
+              {troupeRender(item.troupe)}
+              {cityRender(item.city)}
+              {locationRender(item.location)}
+            </Flex>
+            <span className="item-content item-play-name">{item.content}</span>
+          </li>
+        ))}
+      </ul>
     );
   };
-  const cellRender = (current, info) => {
+
+  const cellRender = (current: dayjs.Dayjs, info: any) => {
     if (info.type === 'date') return dateCellRender(current);
     if (info.type === 'month') return monthCellRender(current);
     return info.originNode;
   };
+
   return <Calendar cellRender={cellRender} defaultValue={dayjs(defaultDate)} />;
 };
-const ComponentDemo = App;
 
-createRoot(mountNode).render(
-  <ConfigProvider
-    locale={locales.zh_CN}
-    theme={{
-      token: {
-        // fontSize: "14px",
-      },
-    }}
-  >
-    <ComponentDemo />
-  </ConfigProvider>
-);
+const container = document.getElementById('root');
+if (container) {
+  createRoot(container).render(
+    <ConfigProvider locale={zhCN}>
+      <div style={{ padding: 24 }}>
+        <App />
+      </div>
+    </ConfigProvider>
+  );
+}
 
 const getListData = (value) => {
   let listData = []; // Specify the type of listData
