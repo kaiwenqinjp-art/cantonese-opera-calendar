@@ -99,8 +99,8 @@ if (container) {
   );
 }
 
-const getListData = (value) => {
-  let listData = []; // Specify the type of listData
+const getListData = (value: any) => {
+  let listData: any[] = []; // Specify the type of listData
 
   switch (value.format('YYYY-MM-DD')) {
     case '2025-01-01':
